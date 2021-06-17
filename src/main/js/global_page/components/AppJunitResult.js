@@ -1,4 +1,5 @@
 import { findProjectJunitResult } from "../../common/api";
+import { DeferredSpinner } from "sonar-components";
 import { PieShow } from "./PieShow"
 
 export class AppJunitResult extends React.Component {
@@ -8,6 +9,7 @@ export class AppJunitResult extends React.Component {
     };
 
     componentDidMount() {
+        console.info(this.props.pkey)
         Promise.all([
             findProjectJunitResult(this.props.pkey)
         ]).then( response => {
@@ -18,6 +20,11 @@ export class AppJunitResult extends React.Component {
         });
     }
     render() {
+
+        if (this.state.loading) {
+            return <div className="page page-limited"><DeferredSpinner /></div>;
+        }
+
         let testResult=[];
         this.state.result.forEach(perDay=>{
             testResult.push(perDay)
