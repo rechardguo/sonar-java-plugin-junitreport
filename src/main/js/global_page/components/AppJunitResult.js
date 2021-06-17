@@ -9,13 +9,12 @@ export class AppJunitResult extends React.Component {
     };
 
     componentDidMount() {
-        console.info(this.props.pkey)
         Promise.all([
             findProjectJunitResult(this.props.pkey)
-        ]).then( response => {
+        ]).then( ([response]) => { //为什么这里不能直接(response),而是([response])
             this.setState({
                 loading: false,
-                result: response
+                result: response.data
             });
         });
     }
@@ -24,7 +23,6 @@ export class AppJunitResult extends React.Component {
         if (this.state.loading) {
             return <div className="page page-limited"><DeferredSpinner /></div>;
         }
-
         let testResult=[];
         this.state.result.forEach(perDay=>{
             testResult.push(perDay)

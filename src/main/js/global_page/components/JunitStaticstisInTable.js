@@ -17,29 +17,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from "react";
+import { findProjectJunitResult } from "../../common/api";
 // SonarComponents (referenced as sonar-components here, see the Webpack config)
 // exposes React components exposed by SonarQube.
 import { DeferredSpinner } from "sonar-components";
 import {  findProjects } from "../../common/api";
-import { AppJunitResult } from "./AppJunitResult";
-import JunitStaticstisInTable from "./JunitStaticstisInTable";
-const div1 = {
+import { AppJunitResult } from "./AppJunitResult"
+const div2 = {
   width: "1000px",
   margin: "30px auto",
-  //backgroundColor: "#44014C",  //驼峰法
   minHeight: "100px",
   boxSizing: "border-box"
 };
-export default class InstanceStatisticsApp extends React.PureComponent {
+export default class JunitStaticstisInTable extends React.PureComponent {
   state = {
     loading: true,
     result: []
   };
 
   componentDidMount() {
-    Promise.all([
-      findProjects()
-    ]).then(([result]) => {
+    let all=[];
+    this.props.projects.forEach(p=>{
+      all.push( findProjectJunitResult(p.key))
+    });
+
+    Promise.all(all).then(result => {
       this.setState({
         loading: false,
         result:result
@@ -48,19 +50,31 @@ export default class InstanceStatisticsApp extends React.PureComponent {
   }
 
   render() {
+
     if (this.state.loading) {
       return <div className="page page-limited"><DeferredSpinner /></div>;
     }
+    let result=[];
 
+    this.state.result.forEach(p=>{
+      let statics={};
+      statics.project=p.name;
+      statics.total=p.data[p.data.length-1].data.tests;
+      statics.fail=p.data[p.data.length-1].data.test_failures;
+      result.push(statics)
+    });
+
+    let detail=result.map((node) =><div>{node.project} ===> total:{node.total}, fail:{node.fail}</div>)
+    let allCases=0;
+    let allFailCases=0;
+    result.forEach(node=>{
+      allCases=allCases+Number(node.total);
+      allFailCases=allFailCases+Number(node.fail);
+    })
+    let summary=<div><b>summary ===>  total:{allCases}, fail:{allFailCases}</b></div>
     return (
-      <div style={div1}>
-        <h1>Junit Test Results</h1>
-        <JunitStaticstisInTable projects={this.state.result}></JunitStaticstisInTable>
-        {
-          this.state.result.map((p) =>
-                <AppJunitResult  pkey={p.key}  name={p.name}/>)
-        }
-      </div>
+        <div style={div2}>{detail}{summary}</div>
+
     );
   }
 

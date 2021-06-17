@@ -56,8 +56,8 @@ export class PieShow extends React.PureComponent {
     }
 
     render() {
-        if(this.props.data[0]){
-            this.props.data[0].forEach(data=>{
+        if(this.props.data){
+            this.props.data.forEach(data=>{
                 this.charData.labels.push(data.date)
                 //total test cases
                 this.charData.datasets[0].data.push(data.data.tests)

@@ -76,7 +76,8 @@ export function findProjectJunitResult(project) {
     Object.keys(map).forEach((key, index) => {
       data.push({"date":key,"data":map[key]})
     })
-    return data
+    let resp={"name":project,"data":data};
+    return resp;
   });
 }
 
